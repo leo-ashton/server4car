@@ -1,8 +1,7 @@
-from cgitb import handler
+from email.policy import default
 import socket
 import qrcode
 import json
-
 
 # 1.创建一个套接字，
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,19 +18,24 @@ class MsgHandler:
     def __init__(self):
         self.handler_dict = {'QRCODE': self.QRCODE_handler}
 
+    def default_handler(self, msg):
+        print(msg)
+
     def QRCODE_handler(self, msg):
-        img = qrcode.make(msg['content'])
-        with open("car_server/output_imgs/qrcode.png", "wb") as f:
+        img = qrcode.make(data=msg['content'])
+        with open("output_imgs/qrcode.png", "wb") as f:
             img.save(f)
             print("二维码已保存!")
 
     def handler(self, msg):
         msg = msg.decode()
         msg = json.loads(msg)
-        self.handler_dict[msg['type']](msg)
+        # self.handler_dict[msg['type']](msg)
+        self.handler_dict.get(
+            msg.get('type'), self.default_handler)(msg)
 
 
-if __name__ == "__main__":
+def run_msg_server():
     msg_handler = MsgHandler()
     while True:
         # 4.调用accept()等待客户端的消息连接
@@ -56,3 +60,7 @@ if __name__ == "__main__":
                 connection.close()
         # finally:
             # 7.需要使用close()进行清理
+
+
+if __name__ == "__main__":
+    run_msg_server()
