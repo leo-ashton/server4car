@@ -1,14 +1,15 @@
-from email.policy import default
 import socket
 import qrcode
 import json
 
+port = 10000
 # 1.创建一个套接字，
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 2.使用bind()函数将套接字与服务器地址关联
-sock.bind(('0.0.0.0', 10000))   # 0.0.0.0绑定到所有的网络地址
+sock.bind(('0.0.0.0', port))   # 0.0.0.0绑定到所有的网络地址
 # 3.调用listen()函数将套接字设置为服务器模式
 sock.listen(50)
+print("MsgServer serving at ", port)
 
 # 报文格式:JSON格式,具有以下字段:
 # type:
@@ -58,6 +59,7 @@ def run_msg_server():
             except Exception as e:
                 print(e)
                 connection.close()
+                break   # 返回继续监听新链接
         # finally:
             # 7.需要使用close()进行清理
 
